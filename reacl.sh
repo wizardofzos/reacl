@@ -3,7 +3,7 @@
 ## reacl.sh - the -R option for setfacl
 #             use with care :)
 #
-#  version 0.1 (minor commits not versioned)
+#  version 0.2 (minor commits not versioned)
 
 
 
@@ -59,13 +59,15 @@ dstring=" -acl_entry $dstring"
 astring=$(echo $fcom | sed 's/,/ -acl_entry /g')
 astring=$(echo $astring | sed 's/fdefault://g')
 astring=" -acl_entry $astring"
+inheritfromdstring=$(echo $dstring | sed 's/default://g')
+fixinherit=$(echo $inheritfromdstring | sed 's/-acl_entry/,/g')
 
 # Find all good files
 find $root $astring -type f > $HOME/.goodfiles
 echo "REACL : All correct files listed `date`"
 
 # Find all good dirs
-okdirarg="$fstring $dstring"
+okdirarg="$fstring $dstring $inheritfromdstring"
 find $root $okdirarg -type d > $HOME/.gooddirs
 echo "REACL : All correct directories listed `date`"
 
@@ -85,7 +87,7 @@ echo "REACL : All bad directories and files determined `date`"
 # Generate our fixscript
 echo "REACL : Generating FixScript"
 cat $HOME/.todofiles | sed "s/.*/setfacl -m '$filesetfaclparm' '&'/" >> $HOME/.fixscript
-cat $HOME/.tododirs | sed "s/.*/setfacl -m '$fcom,$dcom' '&'/" >> $HOME/.fixscript
+cat $HOME/.tododirs | sed "s/.*/setfacl -m '$fcom,$dcom $fixiniherit' '&'/" >> $HOME/.fixscript
 
 # Make it executable
 chmod +x $HOME/.fixscript
