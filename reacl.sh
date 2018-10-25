@@ -87,7 +87,7 @@ echo "REACL : All bad directories and files determined `date`"
 # Generate our fixscript
 echo "REACL : Generating FixScript"
 cat $HOME/.todofiles | sed "s/.*/setfacl -m '$filesetfaclparm' '&'/" >> $HOME/.fixscript
-cat $HOME/.tododirs | sed "s/.*/setfacl -m '$fcom,$dcom $fixiniherit' '&'/" >> $HOME/.fixscript
+cat $HOME/.tododirs | sed "s/.*/setfacl -m '$fcom,$dcom $fixinherit' '&'/" >> $HOME/.fixscript
 
 # Make it executable
 chmod +x $HOME/.fixscript
