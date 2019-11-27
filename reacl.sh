@@ -3,13 +3,14 @@
 ## reacl.sh - the -R option for setfacl
 #             use with care :)
 #
-#  version 0.2 (minor commits not versioned)
-
-
+#  version 0.3 (minor commits not versioned)
+#  added non-interactive mode with autorun=no or autorun=yes
+#  autorun=yes runs reacl and automatically executes .fixscript
+#  autorun=no runs reacl and does not run .fixscript
 
 # Check number of parameters
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo "Usage : `basename $0` {directory}"
   echo ""
   exit 100
@@ -20,9 +21,18 @@ rootsowner=
 # Check UID (problems can occur if not root)
 uid=`id -u`
 if [ $uid  != "0" ]; then
-  echo "REACL : Your'e not root. Autorisation errors might occur"
-  echo "        Press [ENTER] key to continue"
-  read cont
+  echo "REACL : You're not root. Autorisation errors might occur"
+  if [[ $* != *--autorun* ]]; then
+    echo "        Press [ENTER] key to continue"
+    read cont
+  else
+    if [[ $* = *--autorun=yes* ]] || [[ $* = *--autorun=no* ]]; then
+      echo "REACL : Running non-interactive. Good luck."
+    else
+      echo "REACL : Invalid value for autorun, use yes or no"
+      exit 1
+    fi
+  fi
 fi
 
 
@@ -102,10 +112,14 @@ if [ $len = "1" ]; then
   exit 0
 fi
 
+if [[ $* != *--autorun* ]]; then
+  echo "REACL : Type RUNIT followed by [ENTER] to fix the ACLs now"
+  echo "REACL : Press [ENTER] to manually run the script"
+  read doit
+elif [[ $* = *--autorun=yes* ]]; then
+  doit="RUNIT"
+fi
 
-echo "REACL : Type RUNIT followed by [ENTER] to fix the ACLs now"
-echo "REACL : Press [ENTER] to manually run the script"
-read doit
 if [ ! $doit ]; then
   echo "REACL : Not running the script as requested"
   echo "REACL : Run $HOME/.fixscript to fix your ACL's"
@@ -119,5 +133,3 @@ if [ $doit = "RUNIT" ]; then
   echo "REACL : Script completed"
   echo "REACL : Finished"
 fi
-
-
